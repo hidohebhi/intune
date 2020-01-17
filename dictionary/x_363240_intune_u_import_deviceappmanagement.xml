@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element extends="sys_import_set_row" label="[Intune] Import DeviceAppManagement" max_length="40" name="x_363240_intune_u_import_deviceappmanagement" type="collection"/>
+</database>

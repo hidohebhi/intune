@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_363240_intune.graphapiUtils2</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Custom class for managing Intune data imports from the Microsoft Graph API.  Created by InSource Inc.</description>
+        <name>graphapiUtils2</name>
+        <script><![CDATA[var graphapiUtils2 = Class.create();
+graphapiUtils2.prototype = {
+	initialize: function() {
+	},
+	
+	//Initiates the App gathering process
+	getApps: function(){
+		
+		gs.log("[Scheduled Job] INTUNE getApps (***START***)");
+		
+		var response = this._restGetApps();
+		
+		if(response){
+			var obj = new JSON().decode(response);
+			this._processApps(response); //maybe replace with in-line code, no need to call function
+		}
+		gs.log("[Scheduled Job] INTUNE getApps (***END***)");
+	},
+	
+	//Executes the Web Service REST call GET_mobileApps
+	_restGetApps: function(){
+		var r = new sn_ws.RESTMessageV2('InTune Device Management', 'GET_mobileApps');
+		//r.setStringParameterNoEscape('DeviceId', correlation_id);
+		
+		var response = r.execute();
+		var responseBody = response.haveError() ? response.getErrorMessage() : response.getBody();
+		var httpStatus = response.getStatusCode();
+		var requestBody = r ? r.getRequestBody():null;
+		var error = response.haveError();
+		
+		if(httpStatus == 200){
+			return responseBody;
+		}
+		
+		if(error == true){
+			gs.error("[Scheduled Job] INTUNE getApps - REST Error Code:"+httpStatus+" "+responseBody+"\nWeb Service: InTune Device Management > GET_mobileApps");
+			
+		}
+		return false;
+	},
+	
+	//Processes the JSON from getApps
+	_processApps: function(res){
+		var obj = new JSON().decode(res);
+		for(var attrib in obj.value) {
+			var gr = new GlideRecord('u_import_managed_apps');
+			gr.initialize();
+			
+			//gr.sys_import_set = crImpSet.sys_id; //This is the sys_id from import set above
+			
+			//Intune info
+			
+			gr.u_id = obj.value[attrib].id;
+			gr.u_createddatetime = obj.value[attrib].createdDateTime;
+			gr.u_description = obj.value[attrib].description;
+			gr.u_displayname = obj.value[attrib].displayName;
+			gr.u_lastmodifieddatetime = obj.value[attrib].lastModifiedDateTime;
+			gr.u_productcode = obj.value[attrib].productCode;
+			gr.u_productversion = obj.value[attrib].productVersion;
+			gr.u_publisher = obj.value[attrib].publisher;
+			gr.u_publishingstate = obj.value[attrib].publishingState;
+			
+			if (gr.u_displayname) { //only insert valid records
+				gr.insert();
+			}
+			
+		}
+	},
+	
+	type: 'graphapiUtils2'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 23:05:12</sys_created_on>
+        <sys_id>3228b2dbdb1200109a755fc74b96198a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>graphapiUtils2</sys_name>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_script_include_3228b2dbdb1200109a755fc74b96198a</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 23:05:12</sys_updated_on>
+    </sys_script_include>
+</record_update>

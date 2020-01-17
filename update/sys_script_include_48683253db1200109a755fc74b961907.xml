@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_363240_intune.graphapiUtils3</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>Custom class for managing Intune data imports from the Microsoft Graph API.  Created by InSource Inc.</description>
+        <name>graphapiUtils3</name>
+        <script><![CDATA[var graphapiUtils3 = Class.create();
+graphapiUtils3.prototype = {
+	initialize: function() {
+	},
+	
+	//Initiates the Device per Application process
+	getAppManagement: function(){
+		
+		gs.log("[Scheduled Job] INTUNE getAppManagement (***START***)");
+		
+		//generate list of Intune Software Packages
+		software_id = "";
+		var gr = new GlideRecord('cmdb_ci_spkg');
+		gr.addQuery('discovery_source', 'Intune');
+		//gr.addQuery('id', 'f6b8b47b-652e-4aa7-9c4e-a3d98e4ea066'); //single record for testing
+		gr.query();
+		
+		while (gr.next()) {
+			gs.log("[Scheduled Job] INTUNE getAppManagement - GETTING software installations for " + gr.name + " - " + gr.correlation_id);
+			software_id = gr.correlation_id;
+			//get installed apps for each Intune CI
+			var response = this._restAppManagement(gr.correlation_id);
+			
+			if(response){
+				this._processAppManagement(response); //maybe replace with in-line code, no need to call function
+			}
+		}
+		gs.log("[Scheduled Job] INTUNE getAppManagement (***END***)");
+	},
+	
+	//Executes the Web Service REST call for getting detected Apps
+	_restAppManagement: function(correlation_id){
+		
+		//gs.log("[Scheduled Job] INTUNE getAppManagement - entered function restAppManagement for " + correlation_id);
+		
+		var r = new sn_ws.RESTMessageV2('InTune Device Management', 'GET_deviceAppManagement');
+		r.setStringParameterNoEscape('id', correlation_id);
+		
+		var response = r.execute();
+		var responseBody = response.haveError() ? response.getErrorMessage() : response.getBody();
+		var httpStatus = response.getStatusCode();
+		var requestBody = r ? r.getRequestBody():null;
+		var error = response.haveError();
+				
+		if(httpStatus == 200){
+			//gs.log("[Scheduled Job] INTUNE getAppManagement - responseBody is " + responseBody);
+			return responseBody;
+		}
+		
+		if(error == true){
+			gs.error("[RESTError Code:"+httpStatus+"] "+responseBody+"\nWeb Service: InTune Device Management > GET_detectedApps");
+			gs.error("[Scheduled Job] INTUNE getAppManagement-REST Error Code:"+httpStatus+"] "+responseBody+"\nWeb Service: InTune Device Management > GET_AppManagement");
+		}
+		
+		gs.log("[Scheduled Job] INTUNE getAppManagement - DID NOT FIND software model" + gr.name + " with ID " + gr.correlation_id);
+		return false;
+	},
+	
+	//Processes the JSON from getApps
+	_processAppManagement: function(res){
+		
+		//gs.log("[Scheduled Job] INTUNE getAppManagement - entered function processAppManagement");
+		
+		var obj = new JSON().decode(res);
+		
+		//gs.log("[Scheduled Job] INTUNE getAppManagement - PROCESSING object " + obj);
+		
+		for(var attrib in obj.value) {
+			var grImp = new GlideRecord('u_import_deviceappmanagement');
+			grImp.initialize();
+			
+			//gs.log("[Scheduled Job] INTUNE getAppManagement - PROCESSING devicename " + obj.value[attrib].deviceName + " - software status is " + obj.value[attrib].installState);
+			
+			//Intune info
+			//grImp.sys_import_set = crImpSet.sys_id; //This is the sys_id from import set above
+			
+			grImp.u_id = obj.value[attrib].id;
+			grImp.u_installstatedetail = obj.value[attrib].installStateDetail;
+			grImp.u_deviceid = obj.value[attrib].deviceId;
+			grImp.u_lastsyncdatetime = obj.value[attrib].lastSyncDateTime;
+			grImp.u_installstate = obj.value[attrib].installState;
+			grImp.u_devicename = obj.value[attrib].deviceName;
+			grImp.u_mobileappinstallstatusvalue = obj.value[attrib].mobileAppInstallStatusValue;
+			grImp.u_softwareid = software_id;
+			
+			if (grImp.u_installstate == "installed") { //only insert installed software records
+				grImp.insert();
+			}
+			
+		}
+	},
+	type: 'graphapiUtils3'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 23:06:01</sys_created_on>
+        <sys_id>48683253db1200109a755fc74b961907</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>graphapiUtils3</sys_name>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_script_include_48683253db1200109a755fc74b961907</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 23:06:01</sys_updated_on>
+    </sys_script_include>
+</record_update>

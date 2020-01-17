@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_363240_intune.IntuneHelper</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>Helper Class for Intune - converted from SCCMHelper by Insource Inc.</description>
+        <name>IntuneHelper</name>
+        <script><![CDATA[// Intune Helper
+
+/**
+ * Helper functions converted from SoftwareMunger.java and CMDBHelper.java
+ * Aleck Lin aleck.lin@service-now.com
+ * Converted to IntuneHelper by insourcenow.com
+ */
+
+var IntuneHelper = Class.create();
+
+IntuneHelper.findComputer = function(id) {
+	// Find the SCCM ID in the correlation_id field
+	var gr = new GlideRecord("cmdb_ci_computer");
+	gr.addQuery("correlation_id", id);
+	gr.query();
+	if (gr.next())
+		return gr.sys_id + '';
+	
+	// Find the SCCM ID in the source table
+	var gr = new GlideRecord("sys_object_source");
+	gr.addQuery("name", "Intune");
+	gr.addQuery("id", id);
+	gr.query();
+	if (gr.next()) {
+		var grr = new GlideRecord(gr.target_table + '');
+		if (grr.get(gr.target_sys_id + ''))
+			return grr.sys_id + '';
+	}
+	
+	return null;
+};
+
+
+IntuneHelper.fixCompany = function(company) {
+	if (company.contains("(R)"))
+		company = company.replace("(R)", "");
+	
+	if (company.contains("®"))
+		company = company.replace("®", "");
+	
+	if (company.contains("™"))
+		company = company.replace("™", "");
+	
+	if (company.contains("(TM)"))
+		company = company.replace("(TM)", "");
+	
+	if (company.endsWith(" Corporation") || company.endsWith(" Corp.") || company.endsWith(" Corp"))
+		company = company.substring(0, company.lastIndexOf(" "));
+	
+	if (company.endsWith("."))
+		company = company.substring(0, company.length - 1);
+	
+	if (company.endsWith(" Inc") || company.endsWith(" Ltd"))
+		company = company.substring(0, company.lastIndexOf(" "));
+	
+	if (company.endsWith(","))
+		company = company.substring(0, company.length - 1);
+	
+	if (company.endsWith(" Incorporated"))
+		company = company.substring(0, company.lastIndexOf(" "));
+	
+	// strip off genuine, its just intel
+	if (company.equals("GenuineIntel"))
+		company = "Intel";
+	
+	// strip off computer if its dell
+	if (company.toLowerCase().equals("dell computer"))
+		company = "Dell";
+	
+	company = company.trim();
+	
+	return company;
+};
+
+
+IntuneHelper.deleteTrailing = function (str,trailing) {
+	if (JSUtil.nil(str) || JSUtil.nil(trailing))
+		return str;
+	
+	if (str.length <= trailing.length)
+		return str;
+	
+	//str does not end with trailing
+	if (str.indexOf(trailing, str.length - trailing.length) == -1)
+		return str;
+	
+	return str.substring(0, str.length - trailing.length);
+};
+
+
+IntuneHelper.mungeName = function(name, version) {
+	var PAT_VERSION_IN_NAME = /^(.*) v?(\d+(?:\.\d+)*)$/;  //Software v1.02
+	
+	name = name.trim();
+	
+	if (JSUtil.nil(version) && name.match(PAT_VERSION_IN_NAME)) {
+		var format =  "$1";
+		name = name.replace(PAT_VERSION_IN_NAME, format);
+	} else {
+		name = this.deleteTrailing(name, version.trim()).trim();
+		name = this.deleteTrailing(name, ",").trim();
+	}
+	
+	name = this.deleteTrailing(name, "(remove only)").trim();
+	name = this.deleteTrailing(name, "(english)").trim();
+	name = this.deleteTrailing(name, "[english]").trim();
+	
+	return name;
+};
+
+
+IntuneHelper.mungeVendor = function(manu) {
+	if (JSUtil.nil(manu))
+		return "";
+	
+	if (manu.startsWith("Adobe "))
+		return "Adobe Systems";
+	
+	if (manu.startsWith("Microsoft "))
+		return "Microsoft";
+	
+	return this.fixCompany(manu);
+};
+
+
+IntuneHelper.mungeVersion = function(version) {
+	if (JSUtil.nil(version))
+		return null;
+	
+	var REGEX_LEADING_ZEROES = /^0+(\d+)/;       //pattern 0232 -> 232
+	
+	var PAT_SURPLUS_ZEROES = /^(.*?(?:\.0)?)(?:\.0)*$/;      //pattern 123.0.0.0 -> 123.0
+	
+	var parts = version.trim().split(".");
+	
+	for( var i = 0; i < parts.length; i++) {
+		parts[i] = parts[i].replace(REGEX_LEADING_ZEROES,"$1");
+	}
+	
+	version = parts.join(".");
+	version = version.replace(PAT_SURPLUS_ZEROES,"$1");
+	
+	return version;
+};
+
+
+IntuneHelper.asGlideDate = function(date) {
+	var pattern = /(\d{4})(\d{2})(\d{2})/; // yyyyMMdd
+	if (JSUtil.nil(date) || !date.match(pattern))
+		return;
+
+	var format = "$1-$2-$3 00:00:00"; // yyyy-MM-dd 00:00:00
+	var formattedDate = date.replace(pattern, format);
+	var glideDate = new GlideDateTime();
+	glideDate.setValue(formattedDate);
+
+	return glideDate;
+};
+	
+	
+IntuneHelper.prototype = {
+
+	initialize: function() {
+	},
+
+	type: "IntuneHelper"
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 23:06:42</sys_created_on>
+        <sys_id>58987edbdb1200109a755fc74b9619f1</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IntuneHelper</sys_name>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_script_include_58987edbdb1200109a755fc74b9619f1</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 23:06:42</sys_updated_on>
+    </sys_script_include>
+</record_update>

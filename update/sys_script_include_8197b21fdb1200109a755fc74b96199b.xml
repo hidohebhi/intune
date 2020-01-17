@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_363240_intune.graphapiUtils</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>Custom class for managing Intune data imports from the Microsoft Graph API.  Created by InSource Inc.</description>
+        <name>graphapiUtils</name>
+        <script><![CDATA[var graphapiUtils = Class.create();
+graphapiUtils.prototype = {
+	initialize: function() {
+	},
+	
+	//GET_DEVICES - main function
+	//Initiates the Device gathering process and splits the import count based on skip = top/first
+	getDevices: function(){
+		
+		gs.log("[Scheduled Job] INTUNE getDevices (***START***)");
+		
+		nextLink = "";
+		var total =0;
+		
+		var response = this._restGetDevices();
+		
+		if(response){
+			
+			//gs.log("[Scheduled Job] INTUNE getDevices first rest call response exists");
+			this._processDevices(response); //process first response
+			
+			//gs.log("[Scheduled Job] INTUNE getDevices: pre-pagination nextLink = " + nextLink);
+			//pagination starts here
+			while(!(typeof nextLink === 'undefined' || nextLink === null)){
+				//gs.log("[Scheduled Job] INTUNE getDevices nextLink exists");
+				response = this._restGetDevices();
+				if(response){
+					this._processDevices(response);
+					//nextLink = obj["@odata.nextLink"];
+					//gs.log("[Scheduled Job] INTUNE getDevices: nextLink = " + nextLink);
+				}
+			}
+			
+		}
+		gs.log("[Scheduled Job] INTUNE getDevices (***END***)");
+	},
+	
+	//REST_GET_DEVICES
+	//Executes the Web Service REST call for getting devices using nextLink and skipToken
+	_restGetDevices: function(){
+		var r = new sn_ws.RESTMessageV2('InTune Device Management', 'GET_managedDevices');
+		
+		if (!(typeof nextLink === 'undefined' || nextLink === null)) {
+			var strLoc = nextLink.indexOf("$skiptoken");
+			var skipToken = (nextLink.substring(strLoc + 11));
+			r.setQueryParameter("$skipToken",skipToken);
+		}
+		
+		var response = r.execute();
+		var responseBody = response.haveError() ? response.getErrorMessage() : response.getBody();
+		var httpStatus = response.getStatusCode();
+		var requestBody = r ? r.getRequestBody():null;
+		var error = response.haveError();
+		
+		if(httpStatus == 200){
+			return responseBody;
+		}
+		
+		if(error == true){
+			gs.error("[Scheduled Job] INTUNE getDevices - REST Error Code:"+httpStatus+" "+responseBody+"\nWeb Service: InTune Device Management > GET_managedDevices");
+		}
+		
+		if(httpStatus == 504){
+			gs.log("[Scheduled Job] INTUNE getDevices: 504 SERVER TIMEOUT");
+		}
+		
+		return false;
+	},
+	
+	//PROCESS_DEVICES
+	//Processes the JSON from getDevices
+	_processDevices: function(res){
+		
+		//gs.log("[Scheduled Job] INTUNE getDevices: executing _processDevices on results");
+		
+		var obj = new JSON().decode(res);
+		total = obj["@odata.count"];
+		//gs.log("[Scheduled Job] INTUNE getDevices: Page count = " + total);
+		nextLink = obj["@odata.nextLink"];
+		//gs.log("[Scheduled Job] INTUNE getDevices: nextLink = " + nextLink);
+		
+		for(var attrib in obj.value) {
+			var restGr = new GlideRecord('u_import_managed_devices');
+			restGr.initialize();
+			//gs.log("import set sysID = " + restGr.sys_id);
+			
+			//Intune info
+			//restGr.sys_import_set = crImpSet.sys_id; //This is the sys_id from import set above
+			
+			restGr.u_id = obj.value[attrib].id;
+			restGr.u_userid = obj.value[attrib].userId;
+			restGr.u_devicename = obj.value[attrib].deviceName;
+			restGr.u_manageddeviceownertype =obj.value[attrib].managedDeviceOwnerType;
+			restGr.u_serialnumber	= obj.value[attrib].serialNumber;
+			restGr.u_deviceregistrationstate	= obj.value[attrib].deviceRegistrationState;
+			restGr.u_operatingsystem	= obj.value[attrib].operatingSystem;
+			restGr.u_osversion	= obj.value[attrib].osVersion;
+			restGr.u_manufacturer	= obj.value[attrib].manufacturer;
+			restGr.u_model	= obj.value[attrib].model;
+			restGr.u_userdisplayname	= obj.value[attrib].userDisplayName;
+			restGr.u_phonenumber	= obj.value[attrib].phoneNumber;
+			restGr.u_osversion	= obj.value[attrib].osVersion;
+			restGr.u_manageddevicename	= obj.value[attrib].managedDeviceName;
+			restGr.u_enrolleddatetime	= obj.value[attrib].enrolledDateTime;
+			restGr.u_lastsyncdatetime	= obj.value[attrib].lastSyncDateTime;
+			restGr.u_issupervised	= obj.value[attrib].isSupervised;
+			restGr.u_userprincipalname	= obj.value[attrib].userPrincipalName;
+			restGr.u_subscribercarrier	= obj.value[attrib].subscriberCarrier;
+			restGr.u_devicecategorydisplayname	= obj.value[attrib].deviceCategoryDisplayName;
+			restGr.u_imei = obj.value[attrib].imei;
+			restGr.u_wifimacaddress = obj.value[attrib].wiFiMacAddress;
+			restGr.u_meid = obj.value[attrib].meid;
+			restGr.u_azureaddeviceid = obj.value[attrib].azureADDeviceId;
+			if (restGr.u_serialnumber && restGr.u_serialnumber != "0" && restGr.u_serialnumber != "unknown") { //do not insert if there is no serial number or if it equals "0" or "unknown"
+				restGr.insert();
+				gs.log("[Scheduled Job] INTUNE getDevices: inserted record in import set: " + restGr.u_serialnumber);
+			}
+			
+		}
+	},
+	
+	
+	type: 'graphapiUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 23:04:17</sys_created_on>
+        <sys_id>8197b21fdb1200109a755fc74b96199b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>graphapiUtils</sys_name>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_script_include_8197b21fdb1200109a755fc74b96199b</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 23:04:17</sys_updated_on>
+    </sys_script_include>
+</record_update>
