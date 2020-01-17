@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_aw_module">
+    <sys_aw_module action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <content display_value="Inbox Module Content">1186fa9bdb1200109a755fc74b9619fb</content>
+        <content_attrs/>
+        <content_component display_value="sn-inbox">c1fbc4bb77b31300c438c277d8106134</content_component>
+        <content_tag/>
+        <detail display_value="Inbox Module Detail">d1863e9bdb1200109a755fc74b96190c</detail>
+        <detail_attrs/>
+        <detail_component display_value="sn-inbox-empty">ee222d2bff222300294153bd6338f113</detail_component>
+        <detail_tag/>
+        <hide_until_ready>false</hide_until_ready>
+        <icon>inbox-outline</icon>
+        <id>inbox</id>
+        <label>Inbox</label>
+        <order>200</order>
+        <roles/>
+        <sys_class_name>sys_aw_module</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 22:57:25</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>dd86fa9bdb1200109a755fc74b9619f3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>inbox</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy/>
+        <sys_props/>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_aw_module_dd86fa9bdb1200109a755fc74b9619f3</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 22:57:25</sys_updated_on>
+        <toolbar_button display_value="Inbox Button">1586fa9bdb1200109a755fc74b9619f4</toolbar_button>
+        <type>master_detail</type>
+        <workspace_config display_value="Intune">8186fad3db1200109a755fc74b96194d</workspace_config>
+    </sys_aw_module>
+    <sys_variable_value action="delete_multiple" query="document_key=dd86fa9bdb1200109a755fc74b9619f3"/>
+</record_update>

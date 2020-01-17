@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role">
+    <sys_security_acl_role action="INSERT_OR_UPDATE">
+        <sys_class_name>sys_security_acl_role</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 22:57:26</sys_created_on>
+        <sys_id>61863e9bdb1200109a755fc74b961967</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x.363240.workspace.intune.intune</sys_name>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_security_acl display_value="x.363240.workspace.intune">6d863e9bdb1200109a755fc74b961945</sys_security_acl>
+        <sys_update_name>sys_security_acl_role_61863e9bdb1200109a755fc74b961967</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 22:57:26</sys_updated_on>
+        <sys_user_role display_value="intune" name="intune">e9863e9bdb1200109a755fc74b961962</sys_user_role>
+        <transaction_id/>
+    </sys_security_acl_role>
+</record_update>

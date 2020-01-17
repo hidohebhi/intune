@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ux_page_property">
+    <sys_ux_page_property action="INSERT_OR_UPDATE">
+        <choices/>
+        <description>Show/Hide search component in workspace header</description>
+        <name>ws_active_search</name>
+        <page display_value="Intune">c986fad3db1200109a755fc74b96194d</page>
+        <suffix/>
+        <sys_class_name>sys_ux_page_property</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 22:57:24</sys_created_on>
+        <sys_id>0986fa9bdb1200109a755fc74b9619cb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>ws_active_search</sys_name>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_ux_page_property_0986fa9bdb1200109a755fc74b9619cb</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 22:57:24</sys_updated_on>
+        <type>boolean</type>
+        <unique_name>x_363240_intune.ws_active_search</unique_name>
+        <value>true</value>
+    </sys_ux_page_property>
+    <sys_translated_text action="delete_multiple" query="documentkey=0986fa9bdb1200109a755fc74b9619cb"/>
+</record_update>

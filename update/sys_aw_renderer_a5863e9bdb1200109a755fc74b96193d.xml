@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_aw_renderer">
+    <sys_aw_renderer action="INSERT_OR_UPDATE">
+        <custom_renderer display_value="sn-component-catalog-item">4e118ce10f132300bb57f4a1ff767ee0</custom_renderer>
+        <custom_renderer_tag>sn-component-catalog-item</custom_renderer_tag>
+        <module_flag>false</module_flag>
+        <renderer_type>record</renderer_type>
+        <sys_class_name>sys_aw_renderer</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-01-17 22:57:26</sys_created_on>
+        <sys_id>a5863e9bdb1200109a755fc74b96193d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name/>
+        <sys_package display_value="Intune" source="x_363240_intune">2a267ad7db1200109a755fc74b961961</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Intune">2a267ad7db1200109a755fc74b961961</sys_scope>
+        <sys_update_name>sys_aw_renderer_a5863e9bdb1200109a755fc74b96193d</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-01-17 22:57:26</sys_updated_on>
+        <table>sc_cat_item_producer</table>
+        <workspace_config display_value="Intune">8186fad3db1200109a755fc74b96194d</workspace_config>
+        <workspace_module/>
+    </sys_aw_renderer>
+</record_update>
